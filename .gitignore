@@ -1,0 +1,14 @@
+# Unbound keys/certificates
+*.key
+*.pem
+
+# Root zone files
+data/
+root.zone
+root.hints
+
+# Logs
+*.log
+
+# Docker
+*.pid
