@@ -11,6 +11,7 @@ services:
 
     volumes:
       - ./conf:/etc/unbound:ro
+      - ./data:/var/lib/unbound
 
     healthcheck:
       test: ["CMD", "unbound-checkconf", "/etc/unbound/unbound.conf"]
