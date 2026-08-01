@@ -13,10 +13,12 @@ RUN apt-get update && \
         unbound-anchor \
         ca-certificates \
         curl \
-        bash && \
+        bash \
+        procps \
+        iproute2 \
+        dnsutils && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
 COPY conf/ /etc/unbound/
 
 RUN unbound-checkconf /etc/unbound/unbound.conf

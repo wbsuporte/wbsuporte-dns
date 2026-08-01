@@ -1,0 +1,19 @@
+services:
+  dns:
+    image: wbsuporte/dns:0.3
+    container_name: wbsuporte-dns
+    restart: unless-stopped
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8953:8953/tcp"
+
+    volumes:
+      - ./conf:/etc/unbound:ro
+
+    healthcheck:
+      test: ["CMD", "unbound-checkconf", "/etc/unbound/unbound.conf"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
