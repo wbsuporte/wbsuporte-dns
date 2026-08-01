@@ -29,6 +29,7 @@ Este projeto oferece uma base moderna para operação de resolução DNS com foc
 ## Principais recursos
 
 - Unbound em container
+- configuração centralizada em um único arquivo: [conf/unbound.conf](conf/unbound.conf)
 - resolução recursiva com DNSSEC
 - zones com root hints e suporte a arquitetura hyperlocal
 - cache com TTL e parâmetros ajustados para produção
@@ -36,6 +37,15 @@ Este projeto oferece uma base moderna para operação de resolução DNS com foc
 - healthcheck de configuração
 - remote control local para manutenção
 - topologia de produção para ISP em arquivo separado
+
+## Configuração centralizada
+
+A estrutura do projeto foi simplificada para um modelo mais fácil de manter, auditar e operar.
+
+- toda a configuração do Unbound está em [conf/unbound.conf](conf/unbound.conf)
+- não há mais fragmentação em arquivos em [conf/conf.d](conf/conf.d)
+- a organização foi padronizada para facilitar troubleshooting e revisão de política
+- os caminhos de runtime, logs, root hints e zonas locais foram ajustados para o volume do contêiner
 
 ## Arquitetura
 
@@ -60,9 +70,11 @@ O projeto foi estruturado para evoluir de um resolver simples para uma arquitetu
 ```text
 .
 ├── conf/
-│   ├── unbound.conf
-│   └── conf.d/
+│   └── unbound.conf
 ├── data/
+│   ├── root.hints
+│   ├── root.zone
+│   └── arpa.zone
 ├── docs/
 │   ├── isp-production-architecture.md
 │   ├── isp-arquitetura-final.md
@@ -98,10 +110,16 @@ git clone https://github.com/wbsuporte/wbsuporte-dns.git
 cd wbsuporte-dns
 ```
 
+Ajuste do projeto para uso em outra máquina:
+
+```bash
+git pull
+```
+
 Stack padrão:
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 ```
 
 Validação da configuração:
@@ -114,6 +132,12 @@ Verificação de saúde:
 
 ```bash
 docker compose ps
+```
+
+Checagem do Unbound:
+
+```bash
+docker compose exec dns unbound-checkconf /etc/unbound/unbound.conf
 ```
 
 Arquitetura ISP com múltiplos nós:
@@ -171,7 +195,11 @@ Este projeto é indicado para:
 
 ## Observações finais
 
-A solução é uma base sólida para resolver DNS recursivo moderno, e a versão de produção ISP amplia a resiliência e a governança operacional do projeto, mantendo a mesma base tecnológica mas com foco em estabilidade, segurança e escalabilidade.
+A solução foi simplificada para um modelo mais robusto e fácil de operar: a configuração do Unbound agora fica centralizada em [conf/unbound.conf](conf/unbound.conf), sem depender de arquivos fragmentados em diretórios auxiliares.
+
+Esse padrão reduz a chance de divergência de configuração, facilita a auditoria, melhora a manutenção e mantém a política de roteamento, cache, DNSSEC e ACLs em um único ponto de revisão.
+
+A versão ISP continua ampliando a resiliência e a governança operacional do projeto, mantendo a mesma base tecnológica mas com foco em estabilidade, segurança e escalabilidade.
 
 ## Licença
 
