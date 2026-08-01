@@ -1,0 +1,38 @@
+groups:
+  - name: dns-resolver-alerts
+    rules:
+      - alert: ResolverDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Resolver DNS indisponível"
+          description: "O alvo do Unbound não está respondendo ao exporter Prometheus."
+
+      - alert: ResolverHighLatency
+        expr: histogram_quantile(0.95, rate(unbound_dns_query_latency_seconds_bucket[5m])) > 0.25
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latência alta no resolver"
+          description: "O p95 de latência do resolver DNS excedeu 250ms por 10 minutos."
+
+      - alert: ResolverLowCacheHitRate
+        expr: rate(unbound_cache_hits_total[5m]) / clamp_min(rate(unbound_queries_total[5m]) + rate(unbound_cache_hits_total[5m]), 1) < 0.6
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Cache do resolver abaixo do esperado"
+          description: "O hit rate do cache do resolver caiu abaixo de 60% no período monitorado."
+
+      - alert: ResolverServfailHigh
+        expr: rate(unbound_num_servfail_total[5m]) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Muitas respostas SERVFAIL"
+          description: "Há aumento anormal de respostas SERVFAIL no resolver."

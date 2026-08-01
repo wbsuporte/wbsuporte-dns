@@ -1,0 +1,114 @@
+services:
+  dns-01:
+    image: wbsuporte/dns:0.3
+    container_name: wbsuporte-dns-01
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "5301:53/tcp"
+      - "5301:53/udp"
+      - "127.0.0.1:8951:8953/tcp"
+    volumes:
+      - ./conf:/etc/unbound:ro
+      - ./data/01:/var/lib/unbound
+    healthcheck:
+      test: ["CMD", "unbound-checkconf", "/etc/unbound/unbound.conf"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dns-exporter-01:
+    image: prom/unbound-exporter:latest
+    container_name: wbsuporte-dns-exporter-01
+    restart: unless-stopped
+    network_mode: "service:dns-01"
+    depends_on:
+      - dns-01
+    command:
+      - --unbound.host=127.0.0.1:8953
+      - --web.listen-address=:9107
+
+  dns-02:
+    image: wbsuporte/dns:0.3
+    container_name: wbsuporte-dns-02
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "5302:53/tcp"
+      - "5302:53/udp"
+      - "127.0.0.1:8952:8953/tcp"
+    volumes:
+      - ./conf:/etc/unbound:ro
+      - ./data/02:/var/lib/unbound
+    healthcheck:
+      test: ["CMD", "unbound-checkconf", "/etc/unbound/unbound.conf"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dns-exporter-02:
+    image: prom/unbound-exporter:latest
+    container_name: wbsuporte-dns-exporter-02
+    restart: unless-stopped
+    network_mode: "service:dns-02"
+    depends_on:
+      - dns-02
+    command:
+      - --unbound.host=127.0.0.1:8953
+      - --web.listen-address=:9107
+
+  dns-03:
+    image: wbsuporte/dns:0.3
+    container_name: wbsuporte-dns-03
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "5303:53/tcp"
+      - "5303:53/udp"
+      - "127.0.0.1:8953:8953/tcp"
+    volumes:
+      - ./conf:/etc/unbound:ro
+      - ./data/03:/var/lib/unbound
+    healthcheck:
+      test: ["CMD", "unbound-checkconf", "/etc/unbound/unbound.conf"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  dns-exporter-03:
+    image: prom/unbound-exporter:latest
+    container_name: wbsuporte-dns-exporter-03
+    restart: unless-stopped
+    network_mode: "service:dns-03"
+    depends_on:
+      - dns-03
+    command:
+      - --unbound.host=127.0.0.1:8953
+      - --web.listen-address=:9107
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wbsuporte-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wbsuporte-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin

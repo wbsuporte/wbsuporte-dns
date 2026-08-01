@@ -3,11 +3,13 @@ services:
     image: wbsuporte/dns:0.3
     container_name: wbsuporte-dns
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "8953:8953/tcp"
+      - "127.0.0.1:8953:8953/tcp"
 
     volumes:
       - ./conf:/etc/unbound:ro
@@ -18,3 +20,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  dns-exporter:
+    image: prom/unbound-exporter:latest
+    container_name: wbsuporte-dns-exporter
+    restart: unless-stopped
+    network_mode: "service:dns"
+    depends_on:
+      - dns
+    command:
+      - --unbound.host=127.0.0.1:8953
+      - --web.listen-address=:9107
