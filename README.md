@@ -1,6 +1,18 @@
 # WBSuporte DNS
 
+![Docker](https://img.shields.io/badge/Docker-Container-blue)
+![Linux](https://img.shields.io/badge/OS-Linux-lightgrey)
+![Unbound](https://img.shields.io/badge/Engine-Unbound-4A90E2)
+![ISP](https://img.shields.io/badge/Target-ISP%20Production-orange)
+
 Servidor DNS recursivo baseado em Unbound, executando em containers Docker e preparado para uso em infraestrutura de provedores de internet.
+
+## Status do projeto
+
+- Stack base funcional
+- Architecture ISP documentada
+- Monitoramento e alertas incluídos
+- Pronto para evolução em produção com múltiplos nós
 
 ## Visão geral
 
@@ -29,12 +41,19 @@ Este projeto oferece uma base moderna para operação de resolução DNS com foc
 
 ```mermaid
 flowchart LR
-    C[Clientes / PPPoE / CGNAT / LAN] --> R[Resolver Unbound]
-    R --> U[Internet / Upstream]
-    R --> A[Cache local]
+    C[Clientes / PPPoE / CGNAT / LAN] --> LB[VIP / Load Balancer]
+    LB --> R1[Resolver Unbound 01]
+    LB --> R2[Resolver Unbound 02]
+    LB --> R3[Resolver Unbound 03]
+    R1 --> U[Internet / Upstream]
+    R2 --> U
+    R3 --> U
+    R1 --> M[Prometheus + Grafana]
+    R2 --> M
+    R3 --> M
 ```
 
-O projeto foi estruturado para evoluir de um resolver simples para uma arquitetura de produção ISP, com múltiplos nós e monitoramento centralizado.
+O projeto foi estruturado para evoluir de um resolver simples para uma arquitetura de produção ISP, com múltiplos nós, monitoramento centralizado e resiliência operacional.
 
 ## Estrutura do repositório
 
@@ -79,22 +98,28 @@ git clone https://github.com/wbsuporte/wbsuporte-dns.git
 cd wbsuporte-dns
 ```
 
-Inicie a stack padrão:
+Stack padrão:
 
 ```bash
 docker compose up -d
 ```
 
-Valide a configuração:
+Validação da configuração:
 
 ```bash
 docker compose config
 ```
 
-Verifique o status dos containers:
+Verificação de saúde:
 
 ```bash
 docker compose ps
+```
+
+Arquitetura ISP com múltiplos nós:
+
+```bash
+docker compose -f docker-compose.isp.yml up -d
 ```
 
 ## Arquitetura ISP / produção
@@ -142,11 +167,20 @@ Este projeto é indicado para:
 - provedores de internet em ambientes controlados
 - redes locais e regionais com necessidade de resolução privada/recursiva
 - cenários com múltiplos clientes e demanda crescente
+- ambientes profissionais que exigem monitoramento, segurança e alta disponibilidade
 
 ## Observações finais
 
-A solução é uma boa base para resolver DNS recursivo moderno, e a versão de produção ISP amplia a resiliência e a governança operacional do projeto, mantendo a mesma base tecnológica mas com foco em estabilidade, segurança e escalabilidade.
+A solução é uma base sólida para resolver DNS recursivo moderno, e a versão de produção ISP amplia a resiliência e a governança operacional do projeto, mantendo a mesma base tecnológica mas com foco em estabilidade, segurança e escalabilidade.
 
 ## Licença
 
 Este projeto é mantido para fins de infraestrutura e operação de DNS em ambientes profissionais. Ajustes de política, ACL e deploy em produção devem ser avaliados conforme o ambiente real do provedor.
+
+## Projeto relacionado
+
+- [docker-compose.yml](docker-compose.yml)
+- [docker-compose.isp.yml](docker-compose.isp.yml)
+- [docs/implantacao-isp.md](docs/implantacao-isp.md)
+- [docs/isp-arquitetura-final.md](docs/isp-arquitetura-final.md)
+- [docs/isp-operacao-producao.md](docs/isp-operacao-producao.md)
