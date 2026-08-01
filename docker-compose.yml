@@ -1,5 +1,8 @@
 services:
   dns:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: wbsuporte/dns:0.3
     container_name: wbsuporte-dns
     restart: unless-stopped
@@ -22,7 +25,7 @@ services:
       retries: 3
 
   dns-exporter:
-    image: prom/unbound-exporter:latest
+    image: prometheuscommunity/unbound_exporter:latest
     container_name: wbsuporte-dns-exporter
     restart: unless-stopped
     network_mode: "service:dns"

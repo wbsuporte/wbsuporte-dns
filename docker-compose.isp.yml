@@ -1,5 +1,8 @@
 services:
   dns-01:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: wbsuporte/dns:0.3
     container_name: wbsuporte-dns-01
     restart: unless-stopped
@@ -19,7 +22,7 @@ services:
       retries: 3
 
   dns-exporter-01:
-    image: prom/unbound-exporter:latest
+    image: prometheuscommunity/unbound_exporter:latest
     container_name: wbsuporte-dns-exporter-01
     restart: unless-stopped
     network_mode: "service:dns-01"
@@ -30,6 +33,9 @@ services:
       - --web.listen-address=:9107
 
   dns-02:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: wbsuporte/dns:0.3
     container_name: wbsuporte-dns-02
     restart: unless-stopped
@@ -49,7 +55,7 @@ services:
       retries: 3
 
   dns-exporter-02:
-    image: prom/unbound-exporter:latest
+    image: prometheuscommunity/unbound_exporter:latest
     container_name: wbsuporte-dns-exporter-02
     restart: unless-stopped
     network_mode: "service:dns-02"
@@ -60,6 +66,9 @@ services:
       - --web.listen-address=:9107
 
   dns-03:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: wbsuporte/dns:0.3
     container_name: wbsuporte-dns-03
     restart: unless-stopped
@@ -79,7 +88,7 @@ services:
       retries: 3
 
   dns-exporter-03:
-    image: prom/unbound-exporter:latest
+    image: prometheuscommunity/unbound_exporter:latest
     container_name: wbsuporte-dns-exporter-03
     restart: unless-stopped
     network_mode: "service:dns-03"
