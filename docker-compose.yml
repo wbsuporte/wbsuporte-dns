@@ -24,13 +24,13 @@ services:
       timeout: 10s
       retries: 3
 
-  dns-exporter:
-    image: prometheuscommunity/unbound_exporter:latest
-    container_name: wbsuporte-dns-exporter
-    restart: unless-stopped
-    network_mode: "service:dns"
-    depends_on:
-      - dns
-    command:
-      - --unbound.host=127.0.0.1:8953
-      - --web.listen-address=:9107
+#  dns-exporter:
+ #   image: prometheuscommunity/unbound_exporter:latest
+  #  container_name: wbsuporte-dns-exporter
+   # restart: unless-stopped
+    #network_mode: "service:dns"
+    #depends_on:
+     # - dns
+    #command:
+     # - --unbound.host=127.0.0.1:8953
+      #- --web.listen-address=:9107

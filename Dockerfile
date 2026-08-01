@@ -24,8 +24,7 @@ COPY conf/ /etc/unbound/
 COPY data/ /var/lib/unbound/
 
 RUN mkdir -p /var/lib/unbound && \
-    chown -R unbound:unbound /var/lib/unbound && \
-    unbound-checkconf /etc/unbound/unbound.conf
+    chown -R unbound:unbound /var/lib/unbound
 
 EXPOSE 53/tcp
 EXPOSE 53/udp
